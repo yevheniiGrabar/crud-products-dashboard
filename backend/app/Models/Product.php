@@ -53,8 +53,12 @@ class Product extends Model
      */
     public static function getUpdateRules($id)
     {
-        $rules = self::$rules;
-        $rules['sku'] = 'required|string|max:100|unique:products,sku,' . $id;
-        return $rules;
+        return [
+            'name' => 'nullable|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'sku' => 'nullable|string|max:100|unique:products,sku,' . $id . ',id',
+            'price' => 'nullable|numeric|min:0',
+            'quantity' => 'nullable|integer|min:0',
+        ];
     }
 }

@@ -3,15 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\StatsResource;
 use App\Services\ProductService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
-    protected $productService;
+    protected ProductService $productService;
 
     public function __construct(ProductService $productService)
     {
@@ -19,22 +21,20 @@ class ProductController extends Controller
     }
 
     /**
-     * Get all products
+     * Get all products with pagination
      */
     public function index(Request $request): JsonResponse
     {
-        $perPage = $request->get('per_page', 10);
-        $products = $this->productService->getAllProducts($perPage);
+        try {
 
-        return response()->json([
-            'data' => ProductResource::collection($products),
-            'meta' => [
-                'current_page' => $products->currentPage(),
-                'last_page' => $products->lastPage(),
-                'per_page' => $products->perPage(),
-                'total' => $products->total(),
-            ]
-        ]);
+            $products = $this->productService->getAllProducts($request->get('per_page'));
+
+            return response()->json(new ProductCollection($products));
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error loading products: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -42,11 +42,17 @@ class ProductController extends Controller
      */
     public function latest(): JsonResponse
     {
-        $products = $this->productService->getLatestProducts(3);
+        try {
+            $products = $this->productService->getLatestProducts();
 
-        return response()->json([
-            'data' => ProductResource::collection($products)
-        ]);
+            return response()->json([
+                'data' => ProductResource::collection($products)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error loading latest products: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -54,11 +60,17 @@ class ProductController extends Controller
      */
     public function stats(): JsonResponse
     {
-        $stats = $this->productService->getProductStats();
+        try {
+            $stats = $this->productService->getProductStats();
 
-        return response()->json([
-            'data' => $stats
-        ]);
+            return response()->json([
+                'data' => new StatsResource($stats)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error loading statistics: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -136,7 +148,7 @@ class ProductController extends Controller
     }
 
     /**
-    * Delete product
+     * Delete product
      */
     public function destroy($id): JsonResponse
     {

@@ -21,8 +21,8 @@ class ProductResource extends JsonResource
             'sku' => $this->sku,
             'price' => (float) $this->price,
             'quantity' => $this->quantity,
-            'created_at' => $this->created_at->toISOString(),
-            'updated_at' => $this->updated_at->toISOString(),
+            'created_at' => $this->created_at?->toISOString(),
+            'updated_at' => $this->updated_at?->toISOString(),
         ];
     }
 }

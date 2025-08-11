@@ -3,23 +3,31 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Repositories\ProductRepositoryInterface;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class ProductService
 {
+    protected const DEFAULT_PER_PAGE = 10;
+    protected ProductRepositoryInterface $productRepository;
+
+    public function __construct(ProductRepositoryInterface $productRepository)
+    {
+        $this->productRepository = $productRepository;
+    }
+
     /**
      * Get all products with pagination
      *
      * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return \Illuminate\Pagination\LengthAwarePaginator
      */
-    public function getAllProducts($perPage = 10)
+    public function getAllProducts($perPage)
     {
-        return Product::orderBy('created_at', 'desc')->paginate($perPage);
+        return $this->productRepository->getAllPaginated($perPage ?? self::DEFAULT_PER_PAGE);
     }
 
     /**
@@ -30,7 +38,7 @@ class ProductService
      */
     public function getProductById($id)
     {
-        return Product::find($id);
+        return $this->productRepository->findById($id);
     }
 
     /**
@@ -41,7 +49,7 @@ class ProductService
      */
     public function getLatestProducts($limit = 3)
     {
-        return Product::orderBy('created_at', 'desc')->limit($limit)->get();
+        return $this->productRepository->getLatest($limit);
     }
 
     /**
@@ -53,20 +61,25 @@ class ProductService
      */
     public function createProduct(array $data)
     {
+        // Filter out empty values and null values
+        $createData = array_filter($data, function($value) {
+            return $value !== null && $value !== '';
+        });
+
         // Validation of data
-        $validator = Validator::make($data, Product::$rules);
+        $validator = Validator::make($createData, Product::$rules);
 
         if ($validator->fails()) {
             throw new ValidationException($validator);
         }
 
         // Image processing
-        if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
-            $data['image'] = $this->uploadImage($data['image']);
+        if (isset($createData['image']) && $createData['image'] instanceof UploadedFile) {
+            $createData['image'] = $this->uploadImage($createData['image']);
         }
 
         // Creating a product
-        return Product::create($data);
+        return $this->productRepository->create($createData);
     }
 
     /**
@@ -79,43 +92,54 @@ class ProductService
      */
     public function updateProduct($id, array $data)
     {
-        $product = Product::find($id);
-
-        if (!$product) {
+        // Check if product exists
+        if (!$this->productRepository->exists($id)) {
             return null;
         }
 
+        // Filter out empty values and null values, but keep 0 values
+        $updateData = array_filter($data, function($value, $key) {
+            // Keep numeric values (including 0) and non-empty strings
+            if (is_numeric($value)) {
+                return true;
+            }
+            if (is_string($value)) {
+                return trim($value) !== '';
+            }
+            return $value !== null;
+        }, ARRAY_FILTER_USE_BOTH);
+
         // Validation of data for updating
-        $validator = Validator::make($data, Product::getUpdateRules($id));
+        $validator = Validator::make($updateData, Product::getUpdateRules($id));
 
         if ($validator->fails()) {
             throw new ValidationException($validator);
         }
 
         // Image processing
-        if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
-            // Delete old image
-            if ($product->image) {
-                $this->deleteImage($product->image);
+        if (isset($updateData['image']) && $updateData['image'] instanceof UploadedFile) {
+            // Get current product to delete old image
+            $currentProduct = $this->productRepository->findById($id);
+            if ($currentProduct && $currentProduct->image) {
+                $this->deleteImage($currentProduct->image);
             }
-            $data['image'] = $this->uploadImage($data['image']);
+            $updateData['image'] = $this->uploadImage($updateData['image']);
         }
 
         // Updating a product
-        $product->update($data);
-
-        return $product->fresh();
+        return $this->productRepository->update($id, $updateData);
     }
 
     /**
-    * Delete product
+     * Delete product
      *
      * @param int $id
      * @return bool
      */
     public function deleteProduct($id)
     {
-        $product = Product::find($id);
+        // Get product to delete image
+        $product = $this->productRepository->findById($id);
 
         if (!$product) {
             return false;
@@ -126,7 +150,7 @@ class ProductService
             $this->deleteImage($product->image);
         }
 
-        return $product->delete();
+        return $this->productRepository->delete($id);
     }
 
     /**
@@ -165,11 +189,6 @@ class ProductService
      */
     public function getProductStats()
     {
-        return [
-            'total' => Product::count(),
-            'total_value' => Product::sum(DB::raw('price * quantity')),
-            'average_price' => Product::avg('price'),
-            'low_stock' => Product::where('quantity', '<', 10)->count(),
-        ];
+        return $this->productRepository->getStats();
     }
 }
