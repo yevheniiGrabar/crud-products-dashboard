@@ -163,6 +163,16 @@ const form = reactive({
 
 const isEditing = computed(() => !!props.product)
 
+const resetForm = () => {
+  form.name = ''
+  form.sku = ''
+  form.price = ''
+  form.quantity = ''
+  form.image = null
+  imagePreview.value = null
+  Object.keys(errors).forEach(key => errors[key] = null)
+}
+
 // Fill the form when editing
 watch(() => props.product, (product) => {
   if (product) {
@@ -176,16 +186,6 @@ watch(() => props.product, (product) => {
     resetForm()
   }
 }, { immediate: true })
-
-const resetForm = () => {
-  form.name = ''
-  form.sku = ''
-  form.price = ''
-  form.quantity = ''
-  form.image = null
-  imagePreview.value = null
-  Object.keys(errors).forEach(key => errors[key] = null)
-}
 
 const handleImageChange = (event) => {
   const file = event.target.files[0]
@@ -204,14 +204,46 @@ const handleSubmit = async () => {
   Object.keys(errors).forEach(key => errors[key] = null)
 
   try {
+    // Prepare form data with proper types
+    const formData = {}
+    
+    // Only include non-empty values
+    if (form.name.trim()) {
+      formData.name = form.name.trim()
+    }
+    if (form.sku.trim()) {
+      formData.sku = form.sku.trim()
+    }
+    if (form.price !== '' && form.price !== null) {
+      formData.price = parseFloat(form.price) || 0
+    }
+    if (form.quantity !== '' && form.quantity !== null) {
+      formData.quantity = parseInt(form.quantity) || 0
+    }
+    if (form.image) {
+      formData.image = form.image
+    }
+
     let result
     if (isEditing.value) {
-      result = await productsStore.updateProduct(props.product.id, form)
+      result = await productsStore.updateProduct(props.product.id, formData)
     } else {
-      result = await productsStore.createProduct(form)
+      // For creation, all fields are required
+      const createData = {
+        name: form.name.trim(),
+        sku: form.sku.trim(),
+        price: parseFloat(form.price) || 0,
+        quantity: parseInt(form.quantity) || 0,
+        image: form.image
+      }
+      result = await productsStore.createProduct(createData)
     }
 
     if (result.success) {
+      // Reset form after successful save
+      if (!isEditing.value) {
+        resetForm()
+      }
       emit('saved')
     } else {
       if (result.errors) {

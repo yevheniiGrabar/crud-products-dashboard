@@ -5,6 +5,7 @@ import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
 import Dashboard from '@/views/Dashboard.vue'
 import Products from '@/views/Products.vue'
+import ProductDetail from '@/views/ProductDetail.vue'
 
 const routes = [
     {
@@ -34,6 +35,12 @@ const routes = [
         path: '/products',
         name: 'Products',
         component: Products,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/products/:id',
+        name: 'ProductDetail',
+        component: ProductDetail,
         meta: { requiresAuth: true }
     }
 ]

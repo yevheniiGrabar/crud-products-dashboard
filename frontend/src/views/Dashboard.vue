@@ -162,14 +162,17 @@
 </template>
 
 <script setup>
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, watch } from 'vue'
 import { useProductsStore } from '@/stores/products'
+import { useAuthStore } from '@/stores/auth'
 
 const productsStore = useProductsStore()
+const authStore = useAuthStore()
 
 const loading = computed(() => productsStore.loading)
 const latestProducts = computed(() => productsStore.latestProducts)
 const stats = computed(() => productsStore.stats)
+const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 const formatPrice = (price) => {
   if (!price) return '$0'
@@ -188,10 +191,23 @@ const formatDate = (dateString) => {
   })
 }
 
+const loadDashboardData = async () => {
+  if (isAuthenticated.value) {
+    await Promise.all([
+      productsStore.getLatestProducts(),
+      productsStore.getStats()
+    ])
+  }
+}
+
 onMounted(async () => {
-  await Promise.all([
-    productsStore.getLatestProducts(),
-    productsStore.getStats()
-  ])
+  await loadDashboardData()
+})
+
+// Watch for authentication changes
+watch(isAuthenticated, async (newValue) => {
+  if (newValue) {
+    await loadDashboardData()
+  }
 })
 </script>

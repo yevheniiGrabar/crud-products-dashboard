@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import axios from 'axios'
+import api from '@/services/api'
 
 export const useAuthStore = defineStore('auth', () => {
     const user = ref(null)
@@ -8,29 +8,14 @@ export const useAuthStore = defineStore('auth', () => {
 
     const isAuthenticated = computed(() => !!token.value)
 
-    // Setup axios with token
-    const setupAxiosAuth = (authToken) => {
-        if (authToken) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`
-        } else {
-            delete axios.defaults.headers.common['Authorization']
-        }
-    }
-
-    // Initialization when loading
-    if (token.value) {
-        setupAxiosAuth(token.value)
-    }
-
     const login = async (credentials) => {
         try {
-            const response = await axios.post('/api/auth/login', credentials)
+            const response = await api.post('/auth/login', credentials)
             const { user: userData, token: authToken } = response.data.data
 
             user.value = userData
             token.value = authToken
             localStorage.setItem('token', authToken)
-            setupAxiosAuth(authToken)
 
             return { success: true }
         } catch (error) {
@@ -43,13 +28,12 @@ export const useAuthStore = defineStore('auth', () => {
 
     const register = async (userData) => {
         try {
-            const response = await axios.post('/api/auth/register', userData)
+            const response = await api.post('/auth/register', userData)
             const { user: newUser, token: authToken } = response.data.data
 
             user.value = newUser
             token.value = authToken
             localStorage.setItem('token', authToken)
-            setupAxiosAuth(authToken)
 
             return { success: true }
         } catch (error) {
@@ -64,7 +48,7 @@ export const useAuthStore = defineStore('auth', () => {
     const logout = async () => {
         try {
             if (token.value) {
-                await axios.post('/api/auth/logout')
+                await api.post('/auth/logout')
             }
         } catch (error) {
             console.error('Logout error:', error)
@@ -72,13 +56,12 @@ export const useAuthStore = defineStore('auth', () => {
             user.value = null
             token.value = null
             localStorage.removeItem('token')
-            setupAxiosAuth(null)
         }
     }
 
     const fetchUser = async () => {
         try {
-            const response = await axios.get('/api/auth/user')
+            const response = await api.get('/auth/user')
             user.value = response.data.data.user
             return { success: true }
         } catch (error) {
