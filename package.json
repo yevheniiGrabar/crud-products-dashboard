@@ -1,0 +1,25 @@
+{
+    "name": "crud-products-dashboard",
+    "version": "1.0.0",
+    "description": "CRUD application for managing products with Laravel and Vue.js",
+    "scripts": {
+        "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+        "dev:backend": "cd backend && php artisan serve",
+        "dev:frontend": "cd frontend && npm run dev",
+        "build": "cd frontend && npm run build",
+        "install:all": "npm install && cd backend && composer install && cd ../frontend && npm install",
+        "setup": "npm run install:all && cd backend && php artisan migrate:fresh --seed"
+    },
+    "keywords": [
+        "laravel",
+        "vue",
+        "crud",
+        "dashboard",
+        "products"
+    ],
+    "author": "Yevhenii Hrabar",
+    "license": "MIT",
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    }
+}
