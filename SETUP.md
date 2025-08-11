@@ -1,6 +1,6 @@
-# Инструкции по настройке проекта
+# Project Setup Instructions
 
-## Требования
+## Requirements
 
 - PHP 8.1+
 - Composer
@@ -8,22 +8,22 @@
 - MySQL 8.0+
 - Git
 
-## Быстрая настройка
+## Quick Setup
 
-1. **Клонируйте репозиторий**
+1. **Clone the repository**
    ```bash
    git clone <repository-url>
    cd crud-products-dashboard
    ```
 
-2. **Установите зависимости и настройте проект**
+2. **Install dependencies and configure the project**
    ```bash
    npm run setup
    ```
 
-3. **Настройте базу данных**
+3. **Configure the database**
    
-   Создайте базу данных MySQL с именем `crud_products` и настройте подключение в файле `backend/.env`:
+   Create a MySQL database named `crud_products` and configure the connection in the `backend/.env` file:
    ```env
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
@@ -33,40 +33,40 @@
    DB_PASSWORD=your_password
    ```
 
-4. **Запустите проект**
+4. **Start the project**
    ```bash
    npm run dev
    ```
 
-   Это запустит:
-   - Backend на http://localhost:8000
-   - Frontend на http://localhost:3000
+   This will start:
+   - Backend on http://localhost:8000
+   - Frontend on http://localhost:3000
 
-## Ручная настройка
+## Manual Setup
 
 ### Backend (Laravel)
 
-1. **Перейдите в директорию backend**
+1. **Navigate to the backend directory**
    ```bash
    cd backend
    ```
 
-2. **Установите зависимости**
+2. **Install dependencies**
    ```bash
    composer install
    ```
 
-3. **Скопируйте файл конфигурации**
+3. **Copy configuration file**
    ```bash
    cp .env.example .env
    ```
 
-4. **Сгенерируйте ключ приложения**
+4. **Generate application key**
    ```bash
    php artisan key:generate
    ```
 
-5. **Настройте базу данных в .env**
+5. **Configure database in .env**
    ```env
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
@@ -76,116 +76,116 @@
    DB_PASSWORD=your_password
    ```
 
-6. **Запустите миграции и сидеры**
+6. **Run migrations and seeders**
    ```bash
    php artisan migrate:fresh --seed
    ```
 
-7. **Создайте символическую ссылку для storage**
+7. **Create symbolic link for storage**
    ```bash
    php artisan storage:link
    ```
 
-8. **Запустите сервер**
+8. **Start server**
    ```bash
    php artisan serve
    ```
 
 ### Frontend (Vue.js)
 
-1. **Перейдите в директорию frontend**
+1. **Navigate to the frontend directory**
    ```bash
    cd frontend
    ```
 
-2. **Установите зависимости**
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-3. **Создайте файл .env**
+3. **Create .env file**
    ```bash
    echo "VITE_API_URL=http://localhost:8000/api" > .env
    ```
 
-4. **Запустите сервер разработки**
+4. **Start development server**
    ```bash
    npm run dev
    ```
 
-## Тестовые данные
+## Test Data
 
-После запуска миграций и сидеров в базе данных будут созданы:
+After running migrations and seeders, the following will be created in the database:
 
-- Тестовый пользователь:
+- Test user:
   - Email: test@example.com
-  - Пароль: password
+  - Password: password
 
-- 5 тестовых товаров (iPhone, MacBook, iPad, AirPods, Apple Watch)
+- 5 test products (iPhone, MacBook, iPad, AirPods, Apple Watch)
 
-## Структура проекта
+## Project Structure
 
 ```
 crud-products-dashboard/
-├── backend/                 # Laravel приложение
+├── backend/                 # Laravel application
 │   ├── app/
-│   │   ├── Http/Controllers/Api/  # API контроллеры
-│   │   ├── Models/                # Eloquent модели
-│   │   ├── Services/              # Бизнес-логика
-│   │   └── Resources/             # API ресурсы
+│   │   ├── Http/Controllers/Api/  # API controllers
+│   │   ├── Models/                # Eloquent models
+│   │   ├── Services/              # Business logic
+│   │   └── Resources/             # API resources
 │   ├── database/
-│   │   ├── migrations/            # Миграции БД
-│   │   └── seeders/               # Сидеры данных
-│   └── routes/api.php             # API маршруты
-├── frontend/                # Vue.js приложение
+│   │   ├── migrations/            # Database migrations
+│   │   └── seeders/               # Data seeders
+│   └── routes/api.php             # API routes
+├── frontend/                # Vue.js application
 │   ├── src/
-│   │   ├── components/            # Vue компоненты
-│   │   ├── views/                 # Страницы приложения
+│   │   ├── components/            # Vue components
+│   │   ├── views/                 # Application pages
 │   │   ├── stores/                # Pinia stores
-│   │   └── router/                # Маршрутизация
+│   │   └── router/                # Routing
 │   └── package.json
 └── README.md
 ```
 
 ## API Endpoints
 
-### Аутентификация
-- `POST /api/auth/register` - Регистрация
-- `POST /api/auth/login` - Вход
-- `POST /api/auth/logout` - Выход
-- `GET /api/auth/user` - Получение данных пользователя
+### Authentication
+- `POST /api/auth/register` - Registration
+- `POST /api/auth/login` - Login
+- `POST /api/auth/logout` - Logout
+- `GET /api/auth/user` - Get user data
 
-### Товары
-- `GET /api/products` - Список товаров
-- `POST /api/products` - Создание товара
-- `GET /api/products/{id}` - Получение товара
-- `PUT /api/products/{id}` - Обновление товара
-- `DELETE /api/products/{id}` - Удаление товара
-- `GET /api/products/latest` - Последние товары
-- `GET /api/products/stats` - Статистика
+### Products
+- `GET /api/products` - Product list
+- `POST /api/products` - Create product
+- `GET /api/products/{id}` - Get product
+- `PUT /api/products/{id}` - Update product
+- `DELETE /api/products/{id}` - Delete product
+- `GET /api/products/latest` - Latest products
+- `GET /api/products/stats` - Statistics
 
-## Функциональность
+## Functionality
 
-- ✅ Регистрация и вход пользователей
-- ✅ CRUD операции для товаров
-- ✅ Загрузка изображений
-- ✅ Панель управления с статистикой
-- ✅ Адаптивный дизайн
-- ✅ Защищенные маршруты
-- ✅ Валидация данных
-- ✅ Пагинация
+- ✅ User registration and login
+- ✅ CRUD operations for products
+- ✅ Image upload
+- ✅ Dashboard with statistics
+- ✅ Responsive design
+- ✅ Protected routes
+- ✅ Data validation
+- ✅ Pagination
 
-## Технологии
+## Technologies
 
 ### Backend
 - Laravel 10
-- Laravel Sanctum (аутентификация)
+- Laravel Sanctum (authentication)
 - MySQL
 - Eloquent ORM
 
 ### Frontend
 - Vue.js 3
 - Vue Router
-- Pinia (управление состоянием)
+- Pinia (state management)
 - Tailwind CSS
-- Axios (HTTP клиент)
+- Axios (HTTP client)

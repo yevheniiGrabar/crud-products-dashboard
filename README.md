@@ -1,122 +1,122 @@
 # CRUD Products Dashboard
 
-Полноценное CRUD-приложение для управления товарами с аутентификацией пользователей.
+A full-featured CRUD application for product management with user authentication.
 
-## 🚀 Технологии
+## 🚀 Technologies
 
 ### Backend
-- **Laravel 10** - PHP фреймворк
-- **MySQL** - база данных
-- **Laravel Sanctum** - аутентификация API
-- **Laravel Resource** - API ресурсы
-- **Eloquent ORM** - работа с базой данных
+- **Laravel 10** - PHP framework
+- **MySQL** - database
+- **Laravel Sanctum** - API authentication
+- **Laravel Resource** - API resources
+- **Eloquent ORM** - database operations
 
 ### Frontend
-- **Vue.js 3** - прогрессивный JavaScript фреймворк
-- **Vue Router** - маршрутизация
-- **Pinia** - управление состоянием
-- **Axios** - HTTP клиент
-- **Tailwind CSS** - CSS фреймворк для стилизации
-- **Vite** - сборщик модулей
+- **Vue.js 3** - progressive JavaScript framework
+- **Vue Router** - routing
+- **Pinia** - state management
+- **Axios** - HTTP client
+- **Tailwind CSS** - CSS framework for styling
+- **Vite** - module bundler
 
-## 📁 Архитектура проекта
+## 📁 Project Architecture
 
 ```
 crud-products-dashboard/
-├── backend/                 # Laravel приложение
+├── backend/                 # Laravel application
 │   ├── app/
 │   │   ├── Http/
-│   │   │   ├── Controllers/ # Контроллеры (только передача данных)
-│   │   │   └── Middleware/  # Middleware для аутентификации
-│   │   ├── Models/          # Eloquent модели
-│   │   ├── Services/        # Бизнес-логика
-│   │   └── Resources/       # API ресурсы
+│   │   │   ├── Controllers/ # Controllers (data transfer only)
+│   │   │   └── Middleware/  # Authentication middleware
+│   │   ├── Models/          # Eloquent models
+│   │   ├── Services/        # Business logic
+│   │   └── Resources/       # API resources
 │   ├── database/
-│   │   ├── migrations/      # Миграции БД
-│   │   └── seeders/         # Сидеры данных
+│   │   ├── migrations/      # Database migrations
+│   │   └── seeders/         # Data seeders
 │   ├── routes/
-│   │   └── api.php          # API маршруты
+│   │   └── api.php          # API routes
 │   └── config/
-│       └── sanctum.php      # Конфигурация Sanctum
-├── frontend/                # Vue.js приложение
+│       └── sanctum.php      # Sanctum configuration
+├── frontend/                # Vue.js application
 │   ├── src/
-│   │   ├── components/      # Vue компоненты
-│   │   ├── views/           # Страницы приложения
+│   │   ├── components/      # Vue components
+│   │   ├── views/           # Application pages
 │   │   ├── stores/          # Pinia stores
-│   │   ├── services/        # API сервисы
-│   │   └── router/          # Конфигурация маршрутов
-│   ├── public/              # Статические файлы
-│   └── package.json         # Зависимости
-└── README.md               # Документация
+│   │   ├── services/        # API services
+│   │   └── router/          # Route configuration
+│   ├── public/              # Static files
+│   └── package.json         # Dependencies
+└── README.md               # Documentation
 ```
 
-## 🏗️ Архитектурные принципы
+## 🏗️ Architectural Principles
 
 ### Backend (Laravel)
-- **MVC Pattern** - разделение логики, представления и данных
-- **Service Layer** - бизнес-логика в сервисах
-- **Repository Pattern** - абстракция работы с БД
-- **Resource Classes** - форматирование API ответов
-- **Middleware** - обработка аутентификации
-- **API Resources** - структурированные ответы API
+- **MVC Pattern** - separation of logic, presentation and data
+- **Service Layer** - business logic in services
+- **Repository Pattern** - database abstraction
+- **Resource Classes** - API response formatting
+- **Middleware** - authentication processing
+- **API Resources** - structured API responses
 
 ### Frontend (Vue.js)
-- **Composition API** - современный подход к компонентам
-- **Pinia Stores** - централизованное управление состоянием
-- **Service Layer** - абстракция API вызовов
-- **Route Guards** - защита маршрутов
-- **Responsive Design** - адаптивный дизайн с Tailwind
+- **Composition API** - modern component approach
+- **Pinia Stores** - centralized state management
+- **Service Layer** - API call abstraction
+- **Route Guards** - route protection
+- **Responsive Design** - adaptive design with Tailwind
 
-## 📋 Функциональность
+## 📋 Functionality
 
-### Аутентификация
-- ✅ Регистрация пользователей (имя, email, пароль)
-- ✅ Вход в систему (email, пароль)
-- ✅ JWT токены для API аутентификации
-- ✅ Защищенные маршруты
+### Authentication
+- ✅ User registration (name, email, password)
+- ✅ System login (email, password)
+- ✅ JWT tokens for API authentication
+- ✅ Protected routes
 
-### Управление товарами
-- ✅ CRUD операции для товаров
-- ✅ Поля товара: название, изображение, артикул, цена, количество
-- ✅ Загрузка изображений
-- ✅ Валидация данных
+### Product Management
+- ✅ CRUD operations for products
+- ✅ Product fields: name, image, SKU, price, quantity
+- ✅ Image upload
+- ✅ Data validation
 
 ### Dashboard
-- ✅ Отображение 3 последних товаров
-- ✅ Статистика товаров
-- ✅ Быстрый доступ к функциям
+- ✅ Display of 3 latest products
+- ✅ Product statistics
+- ✅ Quick access to functions
 
-### Адаптивность
-- ✅ Мобильная версия
-- ✅ Планшетная версия
-- ✅ Десктопная версия
+### Adaptability
+- ✅ Mobile version
+- ✅ Tablet version
+- ✅ Desktop version
 
-## 🛠️ Установка и запуск
+## 🛠️ Installation and Setup
 
-### Требования
+### Requirements
 - PHP 8.1+
 - Composer
 - Node.js 16+
 - MySQL 8.0+
 - Git
 
-### Backend установка
+### Backend Installation
 
 ```bash
-# Клонирование репозитория
+# Clone repository
 git clone <repository-url>
 cd crud-products-dashboard/backend
 
-# Установка зависимостей
+# Install dependencies
 composer install
 
-# Копирование конфигурации
+# Copy configuration
 cp .env.example .env
 
-# Генерация ключа приложения
+# Generate application key
 php artisan key:generate
 
-# Настройка базы данных в .env
+# Configure database in .env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -124,32 +124,32 @@ DB_DATABASE=crud_products
 DB_USERNAME=root
 DB_PASSWORD=
 
-# Запуск миграций
+# Run migrations
 php artisan migrate
 
-# Запуск сидеров (опционально)
+# Run seeders (optional)
 php artisan db:seed
 
-# Запуск сервера
+# Start server
 php artisan serve
 ```
 
-### Frontend установка
+### Frontend Installation
 
 ```bash
 cd frontend
 
-# Установка зависимостей
+# Install dependencies
 npm install
 
-# Запуск в режиме разработки
+# Start development server
 npm run dev
 
-# Сборка для продакшена
+# Build for production
 npm run build
 ```
 
-## 🔧 Конфигурация
+## 🔧 Configuration
 
 ### Backend (.env)
 ```env
@@ -178,49 +178,49 @@ VITE_APP_NAME="CRUD Products Dashboard"
 
 ## 📡 API Endpoints
 
-### Аутентификация
-- `POST /api/auth/register` - Регистрация
-- `POST /api/auth/login` - Вход
-- `POST /api/auth/logout` - Выход
-- `GET /api/auth/user` - Получение данных пользователя
+### Authentication
+- `POST /api/auth/register` - Registration
+- `POST /api/auth/login` - Login
+- `POST /api/auth/logout` - Logout
+- `GET /api/auth/user` - Get user data
 
-### Товары
-- `GET /api/products` - Список товаров
-- `POST /api/products` - Создание товара
-- `GET /api/products/{id}` - Получение товара
-- `PUT /api/products/{id}` - Обновление товара
-- `DELETE /api/products/{id}` - Удаление товара
-- `GET /api/products/latest` - Последние товары
+### Products
+- `GET /api/products` - Product list
+- `POST /api/products` - Create product
+- `GET /api/products/{id}` - Get product
+- `PUT /api/products/{id}` - Update product
+- `DELETE /api/products/{id}` - Delete product
+- `GET /api/products/latest` - Latest products
 
-## 🎨 UI/UX Особенности
+## 🎨 UI/UX Features
 
-- **Современный дизайн** с использованием Tailwind CSS
-- **Адаптивная верстка** для всех устройств
-- **Интуитивный интерфейс** с понятной навигацией
-- **Быстрая загрузка** благодаря оптимизации
-- **Валидация форм** в реальном времени
-- **Уведомления** о результатах операций
+- **Modern design** using Tailwind CSS
+- **Responsive layout** for all devices
+- **Intuitive interface** with clear navigation
+- **Fast loading** thanks to optimization
+- **Form validation** in real time
+- **Notifications** about operation results
 
-## 🔒 Безопасность
+## 🔒 Security
 
-- **CSRF защита** для всех форм
-- **Валидация данных** на backend и frontend
-- **JWT токены** для аутентификации
-- **Хеширование паролей** с использованием bcrypt
-- **Middleware защита** для API endpoints
-- **CORS настройки** для безопасного взаимодействия
+- **CSRF protection** for all forms
+- **Data validation** on backend and frontend
+- **JWT tokens** for authentication
+- **Password hashing** using bcrypt
+- **Middleware protection** for API endpoints
+- **CORS settings** for secure interaction
 
-## 🧪 Тестирование
+## 🧪 Testing
 
 ```bash
-# Backend тесты
+# Backend tests
 php artisan test
 
-# Frontend тесты
+# Frontend tests
 npm run test
 ```
 
-## 📦 Развертывание
+## 📦 Deployment
 
 ### Backend (Production)
 ```bash
@@ -235,18 +235,18 @@ php artisan view:cache
 npm run build
 ```
 
-## 🤝 Вклад в проект
+## 🤝 Contributing
 
-1. Fork репозитория
-2. Создайте feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit изменения (`git commit -m 'Add amazing feature'`)
-4. Push в branch (`git push origin feature/amazing-feature`)
-5. Откройте Pull Request
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
 
-## 📄 Лицензия
+## 📄 License
 
-Этот проект лицензирован под MIT License - см. файл [LICENSE](LICENSE) для деталей.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨‍💻 Автор
+## 👨‍💻 Author
 
-Разработано с использованием лучших практик современной веб-разработки.
+Developed using best practices of modern web development.

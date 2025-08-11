@@ -101,7 +101,7 @@ export const useProductsStore = defineStore('products', () => {
                 }
             })
 
-            const response = await axios.post(`/api/products/${id}`, formData, {
+            const response = await axios.put(`/api/products/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
