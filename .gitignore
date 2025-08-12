@@ -74,7 +74,7 @@ jspm_packages/
 
 # Gatsby files
 .cache/
-public
+# public  # Commented out to allow Laravel public folder
 
 # Storybook build outputs
 .out

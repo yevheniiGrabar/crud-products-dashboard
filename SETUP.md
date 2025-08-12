@@ -1,191 +1,183 @@
-# Project Setup Instructions
+# Setup Instructions
 
-## Requirements
+## Prerequisites
 
 - PHP 8.1+
 - Composer
 - Node.js 16+
-- MySQL 8.0+
-- Git
+- MySQL/PostgreSQL
 
-## Quick Setup
+## Backend Setup
 
-1. **Clone the repository**
+### 1. Install Dependencies
+```bash
+cd backend
+composer install
+```
+
+### 2. Environment Configuration
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+### 3. Database Configuration
+Update `.env` file with your database credentials:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database_name
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+### 4. Database Migration and Seeding
+```bash
+php artisan migrate:fresh --seed
+```
+
+### 5. Storage Link (REQUIRED for file uploads)
+```bash
+php artisan storage:link
+```
+
+**Important:** This command creates a symbolic link from `public/storage` to `storage/app/public`. 
+Without this link:
+- ✅ File uploads will work (files are saved)
+- ❌ Files won't be accessible via web browser (403 Forbidden)
+- ❌ Image URLs in API responses won't work
+
+### 6. Start Development Server
+**IMPORTANT:** Make sure you're in the `backend` directory when running this command:
+```bash
+cd backend  # ← You must be in this directory
+php artisan serve --host=0.0.0.0 --port=8000
+```
+
+The server will be available at: http://localhost:8000
+
+## Frontend Setup
+
+### 1. Install Dependencies
+```bash
+cd frontend
+npm install
+```
+
+### 2. Environment Configuration
+```bash
+cp env.example .env
+```
+
+Update `.env` file if needed:
+```env
+VITE_API_BASE_URL=http://localhost:8000/api
+VITE_APP_NAME="CRUD Products Dashboard"
+VITE_APP_VERSION="1.0.0"
+```
+
+### 3. Start Development Server
+```bash
+npm run dev
+```
+
+The frontend will be available at: http://localhost:5173
+
+## Troubleshooting
+
+### "public folder does not exist" Error
+
+If you get an error about the public folder not existing:
+
+1. **Make sure you're in the correct directory:**
    ```bash
-   git clone <repository-url>
-   cd crud-products-dashboard
+   cd backend  # ← Must be in backend directory
+   pwd  # Should show: /path/to/project/backend
    ```
 
-2. **Install dependencies and configure the project**
+2. **Check if public folder exists:**
    ```bash
-   npm run setup
+   ls -la public/
    ```
 
-3. **Configure the database**
-   
-   Create a MySQL database named `crud_products` and configure the connection in the `backend/.env` file:
-   ```env
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=crud_products
-   DB_USERNAME=root
-   DB_PASSWORD=your_password
-   ```
-
-4. **Start the project**
+3. **If public folder is missing, it might be a git issue:**
    ```bash
-   npm run dev
+   git checkout HEAD -- public/
    ```
 
-   This will start:
-   - Backend on http://localhost:8000
-   - Frontend on http://localhost:3000
-
-## Manual Setup
-
-### Backend (Laravel)
-
-1. **Navigate to the backend directory**
+4. **Verify Laravel installation:**
    ```bash
-   cd backend
+   php artisan --version
    ```
 
-2. **Install dependencies**
+### Common Issues
+
+1. **Permission Issues:**
    ```bash
-   composer install
+   chmod -R 755 storage/
+   chmod -R 755 bootstrap/cache/
    ```
 
-3. **Copy configuration file**
+2. **Composer Autoload Issues:**
    ```bash
-   cp .env.example .env
+   composer dump-autoload
    ```
 
-4. **Generate application key**
+3. **Cache Issues:**
    ```bash
-   php artisan key:generate
+   php artisan config:clear
+   php artisan cache:clear
+   php artisan route:clear
+   php artisan view:clear
    ```
 
-5. **Configure database in .env**
-   ```env
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=crud_products
-   DB_USERNAME=root
-   DB_PASSWORD=your_password
-   ```
+## API Testing
 
-6. **Run migrations and seeders**
-   ```bash
-   php artisan migrate:fresh --seed
-   ```
+### Test Registration
+```bash
+curl -X POST http://localhost:8000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "name": "Test User",
+    "email": "test@example.com",
+    "password": "password123",
+    "password_confirmation": "password123"
+  }'
+```
 
-7. **Create symbolic link for storage**
-   ```bash
-   php artisan storage:link
-   ```
-
-8. **Start server**
-   ```bash
-   php artisan serve
-   ```
-
-### Frontend (Vue.js)
-
-1. **Navigate to the frontend directory**
-   ```bash
-   cd frontend
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Create .env file**
-   ```bash
-   echo "VITE_API_URL=http://localhost:8000/api" > .env
-   ```
-
-4. **Start development server**
-   ```bash
-   npm run dev
-   ```
-
-## Test Data
-
-After running migrations and seeders, the following will be created in the database:
-
-- Test user:
-  - Email: test@example.com
-  - Password: password
-
-- 5 test products (iPhone, MacBook, iPad, AirPods, Apple Watch)
+### Test Login
+```bash
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "password123"
+  }'
+```
 
 ## Project Structure
 
 ```
 crud-products-dashboard/
-├── backend/                 # Laravel application
+├── backend/                 # Laravel API
 │   ├── app/
-│   │   ├── Http/Controllers/Api/  # API controllers
-│   │   ├── Models/                # Eloquent models
-│   │   ├── Services/              # Business logic
-│   │   └── Resources/             # API resources
+│   ├── config/
 │   ├── database/
-│   │   ├── migrations/            # Database migrations
-│   │   └── seeders/               # Data seeders
-│   └── routes/api.php             # API routes
-├── frontend/                # Vue.js application
-│   ├── src/
-│   │   ├── components/            # Vue components
-│   │   ├── views/                 # Application pages
-│   │   ├── stores/                # Pinia stores
-│   │   └── router/                # Routing
-│   └── package.json
-└── README.md
+│   ├── public/             # ← This folder must exist
+│   ├── routes/
+│   └── artisan            # ← Run commands from here
+└── frontend/              # Vue.js SPA
+    ├── src/
+    ├── public/
+    └── package.json
 ```
 
-## API Endpoints
+## Development Workflow
 
-### Authentication
-- `POST /api/auth/register` - Registration
-- `POST /api/auth/login` - Login
-- `POST /api/auth/logout` - Logout
-- `GET /api/auth/user` - Get user data
-
-### Products
-- `GET /api/products` - Product list
-- `POST /api/products` - Create product
-- `GET /api/products/{id}` - Get product
-- `PUT /api/products/{id}` - Update product
-- `DELETE /api/products/{id}` - Delete product
-- `GET /api/products/latest` - Latest products
-- `GET /api/products/stats` - Statistics
-
-## Functionality
-
-- ✅ User registration and login
-- ✅ CRUD operations for products
-- ✅ Image upload
-- ✅ Dashboard with statistics
-- ✅ Responsive design
-- ✅ Protected routes
-- ✅ Data validation
-- ✅ Pagination
-
-## Technologies
-
-### Backend
-- Laravel 10
-- Laravel Sanctum (authentication)
-- MySQL
-- Eloquent ORM
-
-### Frontend
-- Vue.js 3
-- Vue Router
-- Pinia (state management)
-- Tailwind CSS
-- Axios (HTTP client)
+1. Start backend server: `cd backend && php artisan serve`
+2. Start frontend server: `cd frontend && npm run dev`
+3. Open http://localhost:5173 in browser
+4. Register/login and test the application
