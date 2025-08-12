@@ -2,32 +2,22 @@
 
 namespace App\Services;
 
-use App\Models\Product;
 use App\Repositories\ProductRepositoryInterface;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class ProductService
 {
-    protected const DEFAULT_PER_PAGE = 10;
-    protected ProductRepositoryInterface $productRepository;
-
-    public function __construct(ProductRepositoryInterface $productRepository)
-    {
-        $this->productRepository = $productRepository;
-    }
+    public function __construct(
+        private ProductRepositoryInterface $productRepository
+    ) {}
 
     /**
      * Get all products with pagination
-     *
-     * @param int $perPage
-     * @return \Illuminate\Pagination\LengthAwarePaginator
      */
-    public function getAllProducts($perPage)
+    public function getAllProducts(int $perPage = 10)
     {
-        return $this->productRepository->getAllPaginated($perPage ?? self::DEFAULT_PER_PAGE);
+        return $this->productRepository->getAllPaginated($perPage);
     }
 
     /**
@@ -57,29 +47,15 @@ class ProductService
      *
      * @param array $data
      * @return Product
-     * @throws ValidationException
      */
     public function createProduct(array $data)
     {
-        // Filter out empty values and null values
-        $createData = array_filter($data, function($value) {
-            return $value !== null && $value !== '';
-        });
-
-        // Validation of data
-        $validator = Validator::make($createData, Product::$rules);
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
+        // Handle image upload if present
+        if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
+            $data['image'] = $this->uploadImage($data['image']);
         }
 
-        // Image processing
-        if (isset($createData['image']) && $createData['image'] instanceof UploadedFile) {
-            $createData['image'] = $this->uploadImage($createData['image']);
-        }
-
-        // Creating a product
-        return $this->productRepository->create($createData);
+        return $this->productRepository->create($data);
     }
 
     /**
@@ -88,64 +64,40 @@ class ProductService
      * @param int $id
      * @param array $data
      * @return Product|null
-     * @throws ValidationException
      */
-    public function updateProduct($id, array $data)
+    public function updateProduct(int $id, array $data)
     {
-        // Check if product exists
-        if (!$this->productRepository->exists($id)) {
-            return null;
+        // Handle image upload if present
+        if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
+            // Delete old image if exists
+            $existingProduct = $this->productRepository->findById($id);
+            if ($existingProduct && $existingProduct->image) {
+                $this->deleteImage($existingProduct->image);
+            }
+
+            $data['image'] = $this->uploadImage($data['image']);
         }
 
-        // Filter out empty values and null values, but keep 0 values
-        $updateData = array_filter($data, function($value, $key) {
-            // Keep numeric values (including 0) and non-empty strings
-            if (is_numeric($value)) {
-                return true;
-            }
-            if (is_string($value)) {
-                return trim($value) !== '';
-            }
-            return $value !== null;
-        }, ARRAY_FILTER_USE_BOTH);
+        // Filter out null values but keep numeric 0 values
+        $data = array_filter($data, function ($value) {
+            return $value !== null && $value !== '';
+        });
 
-        // Validation of data for updating
-        $validator = Validator::make($updateData, Product::getUpdateRules($id));
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
-
-        // Image processing
-        if (isset($updateData['image']) && $updateData['image'] instanceof UploadedFile) {
-            // Get current product to delete old image
-            $currentProduct = $this->productRepository->findById($id);
-            if ($currentProduct && $currentProduct->image) {
-                $this->deleteImage($currentProduct->image);
-            }
-            $updateData['image'] = $this->uploadImage($updateData['image']);
-        }
-
-        // Updating a product
-        return $this->productRepository->update($id, $updateData);
+        return $this->productRepository->update($id, $data);
     }
 
     /**
      * Delete product
-     *
-     * @param int $id
-     * @return bool
      */
-    public function deleteProduct($id)
+    public function deleteProduct(int $id): bool
     {
-        // Get product to delete image
         $product = $this->productRepository->findById($id);
 
         if (!$product) {
             return false;
         }
 
-        // Delete image
+        // Delete image if exists
         if ($product->image) {
             $this->deleteImage($product->image);
         }
@@ -154,41 +106,29 @@ class ProductService
     }
 
     /**
-     * Upload image
-     *
-     * @param UploadedFile $file
-     * @return string
+     * Get product statistics
      */
-    private function uploadImage(UploadedFile $file)
+    public function getProductStats(): array
     {
-        $fileName = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('products', $fileName, 'public');
+        return $this->productRepository->getStats();
+    }
 
+    /**
+     * Upload image to storage
+     */
+    private function uploadImage(UploadedFile $file): string
+    {
+        $path = $file->store('products', 'public');
         return $path;
     }
 
     /**
-     * Delete image
-     *
-     * @param string $path
-     * @return bool
+     * Delete image from storage
      */
-    private function deleteImage($path)
+    private function deleteImage(string $path): void
     {
         if (Storage::disk('public')->exists($path)) {
-            return Storage::disk('public')->delete($path);
+            Storage::disk('public')->delete($path);
         }
-
-        return false;
-    }
-
-    /**
-     * Get product statistics
-     *
-     * @return array
-     */
-    public function getProductStats()
-    {
-        return $this->productRepository->getStats();
     }
 }
