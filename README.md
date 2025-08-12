@@ -65,6 +65,28 @@ Pages → State → API Calls → UI Elements
 
 ### Quick Setup
 
+#### Option 1: Automated Setup (Recommended)
+
+1. **Clone the repository**
+```bash
+git clone <repository-url>
+cd crud-products-dashboard
+```
+
+2. **Run the automated setup script**
+```bash
+./setup.sh
+```
+
+This script will automatically:
+- Install all dependencies (PHP and Node.js)
+- Configure environment files
+- Set up the database
+- Start both servers
+- Open the application in your browser
+
+#### Option 2: Manual Setup
+
 1. **Clone the repository**
 ```bash
 git clone <repository-url>
@@ -98,6 +120,35 @@ cp .env.example .env
 
 4. **Database setup**
 ```bash
+cd backend
+php artisan migrate:fresh --seed
+```
+
+## Running the Application
+
+### Start Servers
+```bash
+./setup.sh
+```
+
+### Stop Servers
+```bash
+./stop.sh
+```
+
+### Manual Server Control
+```bash
+# Backend
+cd backend && php artisan serve
+
+# Frontend  
+cd frontend && npm run dev
+```
+
+The application will be available at:
+- Backend: http://localhost:8000
+- Frontend: http://localhost:5173
+- API: http://localhost:8000/api
 cd backend
 php artisan migrate
 php artisan db:seed
