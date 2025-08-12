@@ -28,37 +28,7 @@ class Product extends Model
      * @var array
      */
     protected $casts = [
-        'price' => 'decimal:2',
+        'price' => 'float',
         'quantity' => 'integer',
     ];
-
-    /**
-     * Validation rules for the model.
-     *
-     * @var array
-     */
-    public static $rules = [
-        'name' => 'required|string|max:255',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        'sku' => 'required|string|max:100|unique:products,sku',
-        'price' => 'required|numeric|min:0',
-        'quantity' => 'required|integer|min:0',
-    ];
-
-    /**
-     * Validation rules for updating (excluding uniqueness of SKU for the current record).
-     *
-     * @param int $id
-     * @return array
-     */
-    public static function getUpdateRules($id)
-    {
-        return [
-            'name' => 'nullable|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'sku' => 'nullable|string|max:100|unique:products,sku,' . $id . ',id',
-            'price' => 'nullable|numeric|min:0',
-            'quantity' => 'nullable|integer|min:0',
-        ];
-    }
 }
