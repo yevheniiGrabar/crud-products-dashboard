@@ -34,7 +34,7 @@
         <div class="hidden sm:ml-6 sm:flex sm:items-center">
           <div v-if="isAuthenticated" class="flex items-center space-x-4">
             <span class="text-sm text-gray-700">
-              Hello, {{ user?.name }}
+              Hello, {{ userName }}
             </span>
             <button
               @click="handleLogout"
@@ -122,7 +122,7 @@
       <div class="pt-4 pb-3 border-t border-gray-200">
         <div v-if="isAuthenticated" class="space-y-1">
           <div class="px-3 py-2 text-sm text-gray-700">
-            Hello, {{ user?.name }}
+            Hello, {{ userName }}
           </div>
           <button
             @click="handleLogout"
@@ -151,7 +151,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
@@ -162,6 +162,14 @@ const mobileMenuOpen = ref(false)
 
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const user = computed(() => authStore.user)
+const userName = computed(() => user.value?.name || 'User')
+
+// Load user data on component mount if authenticated
+onMounted(async () => {
+  if (isAuthenticated.value && !user.value) {
+    await authStore.fetchUser()
+  }
+})
 
 const handleLogout = async () => {
   await authStore.logout()

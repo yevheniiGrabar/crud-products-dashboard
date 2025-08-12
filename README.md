@@ -11,6 +11,7 @@ A full-stack CRUD application for product management built with Laravel (backend
 - **Repository Pattern** - Data access layer
 - **Service Layer** - Business logic
 - **Laravel Resources** - API response formatting
+- **Form Request Validation** - Input validation layer
 - **CORS** - Cross-origin resource sharing
 
 ### Frontend
@@ -25,12 +26,13 @@ A full-stack CRUD application for product management built with Laravel (backend
 
 ### Backend Architecture
 ```
-Controllers → Services → Repositories → Resources
-     ↓           ↓           ↓           ↓
-HTTP Layer → Business Logic → Data Access → Response Formatting
+Controllers → Form Requests → Services → Repositories → Resources
+     ↓           ↓              ↓           ↓           ↓
+HTTP Layer → Validation → Business Logic → Data Access → Response Formatting
 ```
 
 - **Controllers**: Handle HTTP requests and responses
+- **Form Requests**: Validate and authorize incoming data
 - **Services**: Contain business logic and orchestrate operations
 - **Repositories**: Handle all database interactions
 - **Resources**: Transform data for API responses
@@ -52,6 +54,7 @@ Pages → State → API Calls → UI Elements
 - ✅ Responsive design
 - ✅ Protected routes
 - ✅ Repository pattern implementation
+- ✅ Form Request validation
 - ✅ Comprehensive test coverage
 
 ## Installation
@@ -64,28 +67,6 @@ Pages → State → API Calls → UI Elements
 - npm
 
 ### Quick Setup
-
-#### Option 1: Automated Setup (Recommended)
-
-1. **Clone the repository**
-```bash
-git clone <repository-url>
-cd crud-products-dashboard
-```
-
-2. **Run the automated setup script**
-```bash
-./setup.sh
-```
-
-This script will automatically:
-- Install all dependencies (PHP and Node.js)
-- Configure environment files
-- Set up the database
-- Start both servers
-- Open the application in your browser
-
-#### Option 2: Manual Setup
 
 1. **Clone the repository**
 ```bash
@@ -120,35 +101,6 @@ cp .env.example .env
 
 4. **Database setup**
 ```bash
-cd backend
-php artisan migrate:fresh --seed
-```
-
-## Running the Application
-
-### Start Servers
-```bash
-./setup.sh
-```
-
-### Stop Servers
-```bash
-./stop.sh
-```
-
-### Manual Server Control
-```bash
-# Backend
-cd backend && php artisan serve
-
-# Frontend  
-cd frontend && npm run dev
-```
-
-The application will be available at:
-- Backend: http://localhost:8000
-- Frontend: http://localhost:5173
-- API: http://localhost:8000/api
 cd backend
 php artisan migrate
 php artisan db:seed
@@ -229,9 +181,30 @@ php artisan test --testsuite=Feature
 ```
 
 ### Test Coverage
-- **Unit Tests**: 37 tests covering repositories, services, and resources
+- **Unit Tests**: 36 tests covering repositories, services, and resources
 - **Feature Tests**: 38 tests covering controllers, authentication, and integration
-- **Total**: 75 tests with 448 assertions
+- **Total**: 74 tests with 112 assertions
+
+## Recent Improvements
+
+### Backend Architecture Enhancements
+- **Form Request Validation**: Moved validation logic from controllers to dedicated Form Request classes
+  - `RegisterRequest` - User registration validation
+  - `LoginRequest` - User login validation
+  - `StoreProductRequest` - Product creation validation
+  - `UpdateProductRequest` - Product update validation
+- **Cleaner Controllers**: Controllers now focus only on HTTP handling
+- **Better Separation of Concerns**: Validation, business logic, and data access are properly separated
+
+### Frontend Improvements
+- **Fixed User Name Display**: Added fallback for user name in navigation
+- **Improved Select Styling**: Fixed dropdown chevron icon positioning
+- **Better Error Handling**: Enhanced API error handling and user feedback
+
+### Code Quality
+- **Type Safety**: Added proper type hints throughout the codebase
+- **Consistent Error Handling**: Standardized error responses across all endpoints
+- **Better Documentation**: Updated README with comprehensive setup and troubleshooting guides
 
 ## Troubleshooting
 
@@ -317,6 +290,7 @@ crud-products-dashboard/
 │   ├── app/
 │   │   ├── Http/
 │   │   │   ├── Controllers/ # API controllers
+│   │   │   ├── Requests/    # Form request validation
 │   │   │   └── Resources/   # API response transformers
 │   │   ├── Models/          # Eloquent models
 │   │   ├── Repositories/    # Data access layer
@@ -342,7 +316,7 @@ crud-products-dashboard/
 
 - API authentication using Laravel Sanctum
 - CORS properly configured
-- Input validation on all endpoints
+- Input validation on all endpoints using Form Requests
 - SQL injection protection via Eloquent ORM
 - XSS protection via proper output encoding
 
