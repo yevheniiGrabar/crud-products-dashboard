@@ -269,20 +269,13 @@ class ProductControllerTest extends TestCase
             'quantity' => 'invalid', // Not integer
         ];
 
-        $this->mockService->shouldReceive('createProduct')
-            ->with($invalidData)
-            ->once()
-            ->andThrow(new \Illuminate\Validation\ValidationException(
-                validator([], []),
-                response()->json(['errors' => ['name' => ['The name field is required.']]], 422)
-            ));
-
         // Act
         $response = $this->postJson('/api/products', $invalidData);
 
         // Assert
         $response->assertStatus(422)
-            ->assertJsonStructure(['message', 'errors']);
+            ->assertJsonStructure(['message', 'errors'])
+            ->assertJsonValidationErrors(['name', 'price', 'quantity']);
     }
 
     /** @test */

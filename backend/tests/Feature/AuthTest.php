@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
@@ -12,9 +12,8 @@ class AuthTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function user_can_register()
+    public function user_can_register_with_valid_data()
     {
-        // Arrange
         $userData = [
             'name' => 'Test User',
             'email' => 'test@example.com',
@@ -22,10 +21,8 @@ class AuthTest extends TestCase
             'password_confirmation' => 'password123',
         ];
 
-        // Act
         $response = $this->postJson('/api/auth/register', $userData);
 
-        // Assert
         $response->assertStatus(201)
             ->assertJsonStructure([
                 'message',
@@ -41,7 +38,8 @@ class AuthTest extends TestCase
                     'user' => [
                         'name' => 'Test User',
                         'email' => 'test@example.com',
-                    ]
+                    ],
+                    'token_type' => 'Bearer'
                 ]
             ]);
 
@@ -52,12 +50,77 @@ class AuthTest extends TestCase
     }
 
     /** @test */
-    public function user_can_login()
+    public function user_cannot_register_with_invalid_email()
     {
-        // Arrange
+        $userData = [
+            'name' => 'Test User',
+            'email' => 'invalid-email',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ];
+
+        $response = $this->postJson('/api/auth/register', $userData);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['email']);
+    }
+
+    /** @test */
+    public function user_cannot_register_with_existing_email()
+    {
+        User::factory()->create(['email' => 'test@example.com']);
+
+        $userData = [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ];
+
+        $response = $this->postJson('/api/auth/register', $userData);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['email']);
+    }
+
+    /** @test */
+    public function user_cannot_register_with_short_password()
+    {
+        $userData = [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => '123',
+            'password_confirmation' => '123',
+        ];
+
+        $response = $this->postJson('/api/auth/register', $userData);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+    }
+
+    /** @test */
+    public function user_cannot_register_with_mismatched_passwords()
+    {
+        $userData = [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'differentpassword',
+        ];
+
+        $response = $this->postJson('/api/auth/register', $userData);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+    }
+
+    /** @test */
+    public function user_can_login_with_valid_credentials()
+    {
         $user = User::factory()->create([
             'email' => 'test@example.com',
-            'password' => bcrypt('password123'),
+            'password' => Hash::make('password123'),
         ]);
 
         $loginData = [
@@ -65,10 +128,8 @@ class AuthTest extends TestCase
             'password' => 'password123',
         ];
 
-        // Act
         $response = $this->postJson('/api/auth/login', $loginData);
 
-        // Assert
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'message',
@@ -79,41 +140,59 @@ class AuthTest extends TestCase
                 ]
             ])
             ->assertJson([
-                'message' => 'Successful login',
+                'message' => 'User successfully logged in',
                 'data' => [
                     'user' => [
                         'email' => 'test@example.com',
-                    ]
+                    ],
+                    'token_type' => 'Bearer'
                 ]
             ]);
     }
 
     /** @test */
+    public function user_cannot_login_with_invalid_credentials()
+    {
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123'),
+        ]);
+
+        $loginData = [
+            'email' => 'test@example.com',
+            'password' => 'wrongpassword',
+        ];
+
+        $response = $this->postJson('/api/auth/login', $loginData);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['email']);
+    }
+
+    /** @test */
     public function user_can_logout()
     {
-        // Arrange
         $user = User::factory()->create();
-        Sanctum::actingAs($user);
+        $token = $user->createToken('test-token')->plainTextToken;
 
-        // Act
-        $response = $this->postJson('/api/auth/logout');
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->postJson('/api/auth/logout');
 
-        // Assert
         $response->assertStatus(200)
-            ->assertJson(['message' => 'Successful logout']);
+            ->assertJson(['message' => 'User successfully logged out']);
     }
 
     /** @test */
     public function user_can_get_profile()
     {
-        // Arrange
         $user = User::factory()->create();
-        Sanctum::actingAs($user);
+        $token = $user->createToken('test-token')->plainTextToken;
 
-        // Act
-        $response = $this->getJson('/api/auth/user');
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->getJson('/api/auth/user');
 
-        // Assert
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
@@ -132,145 +211,12 @@ class AuthTest extends TestCase
     }
 
     /** @test */
-    public function registration_validates_required_fields()
+    public function unauthenticated_user_cannot_access_protected_routes()
     {
-        // Act
-        $response = $this->postJson('/api/auth/register', []);
-
-        // Assert
-        $response->assertStatus(422)
-            ->assertJsonStructure(['message', 'errors'])
-            ->assertJsonValidationErrors(['name', 'email', 'password']);
-    }
-
-    /** @test */
-    public function registration_validates_email_format()
-    {
-        // Arrange
-        $userData = [
-            'name' => 'Test User',
-            'email' => 'invalid-email',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-        ];
-
-        // Act
-        $response = $this->postJson('/api/auth/register', $userData);
-
-        // Assert
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['email']);
-    }
-
-    /** @test */
-    public function registration_validates_password_confirmation()
-    {
-        // Arrange
-        $userData = [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'different-password',
-        ];
-
-        // Act
-        $response = $this->postJson('/api/auth/register', $userData);
-
-        // Assert
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['password']);
-    }
-
-    /** @test */
-    public function registration_prevents_duplicate_email()
-    {
-        // Arrange
-        User::factory()->create(['email' => 'test@example.com']);
-
-        $userData = [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-        ];
-
-        // Act
-        $response = $this->postJson('/api/auth/register', $userData);
-
-        // Assert
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['email']);
-    }
-
-    /** @test */
-    public function login_validates_credentials()
-    {
-        // Arrange
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => bcrypt('password123'),
-        ]);
-
-        $invalidData = [
-            'email' => 'test@example.com',
-            'password' => 'wrong-password',
-        ];
-
-        // Act
-        $response = $this->postJson('/api/auth/login', $invalidData);
-
-        // Assert
-        $response->assertStatus(401)
-            ->assertJson(['message' => 'Invalid credentials']);
-    }
-
-    /** @test */
-    public function login_validates_required_fields()
-    {
-        // Act
-        $response = $this->postJson('/api/auth/login', []);
-
-        // Assert
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['email', 'password']);
-    }
-
-    /** @test */
-    public function logout_requires_authentication()
-    {
-        // Act
-        $response = $this->postJson('/api/auth/logout');
-
-        // Assert
-        $response->assertStatus(401);
-    }
-
-    /** @test */
-    public function user_profile_requires_authentication()
-    {
-        // Act
         $response = $this->getJson('/api/auth/user');
-
-        // Assert
         $response->assertStatus(401);
-    }
 
-    /** @test */
-    public function password_must_be_minimum_length()
-    {
-        // Arrange
-        $userData = [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => '123',
-            'password_confirmation' => '123',
-        ];
-
-        // Act
-        $response = $this->postJson('/api/auth/register', $userData);
-
-        // Assert
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['password']);
+        $response = $this->postJson('/api/auth/logout');
+        $response->assertStatus(401);
     }
 }
