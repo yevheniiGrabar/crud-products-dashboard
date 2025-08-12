@@ -1,128 +1,124 @@
-# CRUD Products Dashboard
+# Products Dashboard
 
-A full-stack CRUD application for product management built with Laravel 10 and Vue.js 3.
+A full-stack CRUD application for product management built with Laravel (backend) and Vue.js (frontend).
 
-## 🏗️ Architecture
-
-### Backend Architecture (Laravel)
-
-The application follows **SOLID principles** and **Repository Pattern**:
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Controllers   │    │     Services    │    │  Repositories   │    │    Resources    │
-│                 │    │                 │    │                 │    │                 │
-│ • AuthController│    │ • ProductService│    │ • ProductRepo   │    │ • ProductResource│
-│ • ProductCtrl   │───▶│ • Business Logic│───▶│ • DB Operations │───▶│ • ProductCollection│
-│ • Data Transfer │    │ • Validation    │    │ • Model Calls   │    │ • StatsResource │
-└─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
-```
-
-**Layers:**
-- **Controllers**: Handle HTTP requests/responses, data transfer
-- **Services**: Business logic, validation, file processing
-- **Repositories**: Database operations, model interactions
-- **Resources**: API response formatting and transformation
-- **Models**: Eloquent models with relationships and casts
-
-**Key Benefits:**
-- ✅ **Separation of Concerns**: Each layer has a specific responsibility
-- ✅ **Testability**: Easy to mock repositories for unit testing
-- ✅ **Maintainability**: Changes in one layer don't affect others
-- ✅ **Scalability**: Easy to add new features or modify existing ones
-- ✅ **Consistent API**: Resources ensure uniform response format
-
-### Frontend Architecture (Vue.js 3)
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│     Views       │    │     Stores      │    │     Services    │
-│                 │    │                 │    │                 │
-│ • Dashboard     │    │ • Auth Store    │    │ • API Service   │
-│ • Products      │───▶│ • Products Store│───▶│ • HTTP Client   │
-│ • Components    │    │ • State Mgmt    │    │ • Interceptors  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
-
-**Layers:**
-- **Views**: Page components, user interface
-- **Stores (Pinia)**: State management, data caching
-- **Services**: API communication, HTTP requests
-- **Components**: Reusable UI components
-
-## 🚀 Technologies
+## Technologies
 
 ### Backend
-- **Laravel 10** - PHP framework
+- **Laravel 11** - PHP framework
 - **MySQL** - Database
 - **Laravel Sanctum** - API authentication
 - **Repository Pattern** - Data access layer
 - **Service Layer** - Business logic
-- **Eloquent ORM** - Database abstraction
+- **Laravel Resources** - API response formatting
+- **CORS** - Cross-origin resource sharing
 
 ### Frontend
-- **Vue.js 3** - Progressive JavaScript framework
+- **Vue.js 3** - JavaScript framework
 - **Vue Router** - Client-side routing
 - **Pinia** - State management
-- **Tailwind CSS** - Utility-first CSS framework
 - **Axios** - HTTP client
+- **Tailwind CSS** - Utility-first CSS framework
 - **Vite** - Build tool
 
-## 📋 Features
+## Architecture
 
-### Authentication
-- User registration and login
-- JWT token-based authentication
-- Protected routes
-- Automatic token refresh
+### Backend Architecture
+```
+Controllers → Services → Repositories → Resources
+     ↓           ↓           ↓           ↓
+HTTP Layer → Business Logic → Data Access → Response Formatting
+```
 
-### Product Management
-- **CRUD Operations**: Create, Read, Update, Delete products
-- **Image Upload**: Product images with validation
-- **Pagination**: Efficient data loading
-- **Search & Filter**: Find products quickly
-- **Statistics**: Dashboard with product analytics
+- **Controllers**: Handle HTTP requests and responses
+- **Services**: Contain business logic and orchestrate operations
+- **Repositories**: Handle all database interactions
+- **Resources**: Transform data for API responses
 
-### User Interface
-- **Responsive Design**: Works on all devices
-- **Modern UI**: Clean and intuitive interface
-- **Real-time Updates**: Instant feedback
-- **Form Validation**: Client and server-side validation
+### Frontend Architecture
+```
+Views → Stores → Services → Components
+  ↓       ↓        ↓          ↓
+Pages → State → API Calls → UI Elements
+```
 
-## 🛠️ Installation
+## Features
+
+- ✅ User authentication (register, login, logout)
+- ✅ Product CRUD operations
+- ✅ Image upload for products
+- ✅ Pagination with customizable items per page
+- ✅ Product statistics dashboard
+- ✅ Responsive design
+- ✅ Protected routes
+- ✅ Repository pattern implementation
+- ✅ Comprehensive test coverage
+
+## Installation
 
 ### Prerequisites
-- PHP 8.1+
-- Node.js 16+
+- PHP 8.2+
+- Node.js 18+
 - MySQL 8.0+
 - Composer
 - npm
 
 ### Quick Setup
+
+1. **Clone the repository**
 ```bash
-# Clone repository
 git clone <repository-url>
 cd crud-products-dashboard
+```
 
-# Install dependencies
+2. **Install dependencies**
+```bash
+# Install all dependencies (backend + frontend)
 npm run install:all
 
-# Setup environment
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
+# Or install separately:
+# Backend
+cd backend && composer install
+# Frontend
+cd frontend && npm install
+```
 
-# Configure database in backend/.env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=crud_products
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
+3. **Environment setup**
+```bash
+# Backend
+cd backend
+cp .env.example .env
+# Configure database settings in .env
 
-# Run setup
-npm run setup
+# Frontend
+cd frontend
+cp .env.example .env
+# Configure API URL in .env (default: http://localhost:8000/api)
+```
 
-# Start development servers
+4. **Database setup**
+```bash
+cd backend
+php artisan migrate
+php artisan db:seed
+```
+
+5. **Storage setup**
+```bash
+cd backend
+php artisan storage:link
+```
+
+6. **Start development servers**
+```bash
+# Start both servers
+npm run dev
+
+# Or start separately:
+# Backend (from backend directory)
+php artisan serve
+
+# Frontend (from frontend directory)
 npm run dev
 ```
 
@@ -131,179 +127,190 @@ npm run dev
 #### Backend Setup
 ```bash
 cd backend
-
-# Install dependencies
 composer install
-
-# Generate application key
+cp .env.example .env
+# Configure .env with your database settings
 php artisan key:generate
-
-# Run migrations
 php artisan migrate
-
-# Seed database
 php artisan db:seed
-
-# Create storage link
 php artisan storage:link
-
-# Start server
 php artisan serve
 ```
 
 #### Frontend Setup
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Start development server
+cp .env.example .env
+# Configure VITE_API_BASE_URL in .env
 npm run dev
 ```
 
-## 📊 API Endpoints
+## API Endpoints
 
 ### Authentication
-```
-POST   /api/auth/register    - Register new user
-POST   /api/auth/login       - User login
-POST   /api/auth/logout      - User logout
-GET    /api/auth/user        - Get current user
-```
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
+- `GET /api/auth/user` - Get current user
 
-### Products (Protected)
-```
-GET    /api/products         - Get all products (paginated)
-GET    /api/products/{id}    - Get product by ID
-POST   /api/products         - Create new product
-PUT    /api/products/{id}    - Update product
-DELETE /api/products/{id}    - Delete product
-GET    /api/products/latest  - Get latest 3 products
-GET    /api/products/stats   - Get product statistics
-```
+### Products
+- `GET /api/products` - Get paginated products
+- `GET /api/products/{id}` - Get specific product
+- `POST /api/products` - Create product
+- `PUT /api/products/{id}` - Update product
+- `DELETE /api/products/{id}` - Delete product
+- `GET /api/products/latest` - Get latest products
+- `GET /api/products/stats` - Get product statistics
 
-## 🔧 Configuration
+## Testing
 
-### Environment Variables
-
-#### Backend (.env)
-```env
-APP_NAME="CRUD Products Dashboard"
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=crud_products
-DB_USERNAME=root
-DB_PASSWORD=
-
-CORS_ALLOWED_ORIGINS=http://localhost:5173
-```
-
-#### Frontend (.env)
-```env
-VITE_API_URL=http://localhost:8000/api
-```
-
-## 🧪 Testing
-
-### Backend Tests
+### Run Tests
 ```bash
-cd backend
-php artisan test
+# All tests
+cd backend && php artisan test
+
+# Unit tests only
+php artisan test --testsuite=Unit
+
+# Feature tests only
+php artisan test --testsuite=Feature
 ```
 
-### Frontend Tests
+### Test Coverage
+- **Unit Tests**: 37 tests covering repositories, services, and resources
+- **Feature Tests**: 38 tests covering controllers, authentication, and integration
+- **Total**: 75 tests with 448 assertions
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+#### 1. Frontend .env file missing
+If you get errors about missing environment variables:
 ```bash
 cd frontend
-npm run test
+cp .env.example .env
+# Edit .env and set VITE_API_BASE_URL=http://localhost:8000/api
 ```
 
-## 📁 Project Structure
+#### 2. Database seeder errors (duplicate records)
+If you get duplicate key errors during seeding:
+```bash
+cd backend
+php artisan migrate:fresh --seed
+```
+
+#### 3. Frontend can't connect to backend (500 error on registration)
+This is usually due to missing storage link or CORS issues:
+
+**Check storage link:**
+```bash
+cd backend
+php artisan storage:link
+```
+
+**Verify CORS configuration:**
+The backend is configured to allow all origins in development. If you're still having issues, check that:
+- Backend is running on `http://localhost:8000`
+- Frontend is running on a different port (usually `http://localhost:5173`)
+- CORS configuration in `backend/config/cors.php` allows your frontend origin
+
+**Check backend logs:**
+```bash
+cd backend
+tail -f storage/logs/laravel.log
+```
+
+#### 4. Image upload not working
+Ensure storage link is created:
+```bash
+cd backend
+php artisan storage:link
+```
+
+#### 5. Authentication issues
+Clear browser storage and restart both servers:
+```bash
+# Backend
+cd backend && php artisan config:clear && php artisan cache:clear
+
+# Frontend
+cd frontend && npm run dev
+```
+
+### Development Tips
+
+1. **Check API responses** using browser dev tools or curl:
+```bash
+curl -X POST http://localhost:8000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test","email":"test@example.com","password":"password123","password_confirmation":"password123"}'
+```
+
+2. **Monitor backend logs** for errors:
+```bash
+cd backend && tail -f storage/logs/laravel.log
+```
+
+3. **Clear caches** if you make configuration changes:
+```bash
+cd backend && php artisan config:clear && php artisan cache:clear
+```
+
+## Project Structure
 
 ```
 crud-products-dashboard/
-├── backend/                          # Laravel Backend
+├── backend/                 # Laravel application
 │   ├── app/
 │   │   ├── Http/
-│   │   │   ├── Controllers/Api/     # API Controllers
-│   │   │   └── Resources/           # API Resources
-│   │   │       ├── ProductResource.php
-│   │   │       ├── ProductCollection.php
-│   │   │       └── StatsResource.php
-│   │   ├── Models/                  # Eloquent Models
-│   │   ├── Repositories/            # Repository Pattern
-│   │   │   ├── ProductRepository.php
-│   │   │   └── ProductRepositoryInterface.php
-│   │   ├── Services/                # Business Logic
-│   │   │   └── ProductService.php
-│   │   └── Providers/               # Service Providers
+│   │   │   ├── Controllers/ # API controllers
+│   │   │   └── Resources/   # API response transformers
+│   │   ├── Models/          # Eloquent models
+│   │   ├── Repositories/    # Data access layer
+│   │   └── Services/        # Business logic
 │   ├── database/
-│   │   ├── migrations/              # Database Migrations
-│   │   └── seeders/                 # Database Seeders
+│   │   ├── migrations/      # Database migrations
+│   │   └── seeders/         # Database seeders
 │   ├── routes/
-│   │   └── api.php                  # API Routes
-│   └── config/                      # Configuration Files
-├── frontend/                        # Vue.js Frontend
+│   │   └── api.php          # API routes
+│   └── tests/               # Test files
+├── frontend/                # Vue.js application
 │   ├── src/
-│   │   ├── components/              # Vue Components
-│   │   ├── views/                   # Page Components
-│   │   ├── stores/                  # Pinia Stores
-│   │   ├── services/                # API Services
-│   │   └── router/                  # Vue Router
-│   ├── public/                      # Static Assets
-│   └── package.json
-├── README.md                        # Project Documentation
-├── SETUP.md                         # Setup Instructions
-├── DEPLOYMENT.md                    # Deployment Guide
-└── package.json                     # Root Package Configuration
+│   │   ├── components/      # Vue components
+│   │   ├── views/           # Page components
+│   │   ├── stores/          # Pinia stores
+│   │   ├── services/        # API services
+│   │   └── router/          # Vue router
+│   └── public/              # Static assets
+└── README.md               # This file
 ```
 
-## 🔒 Security Features
+## Security
 
-- **JWT Authentication**: Secure token-based authentication
-- **CORS Protection**: Configured for frontend-backend communication
-- **Input Validation**: Server-side validation for all inputs
-- **File Upload Security**: Image validation and secure storage
-- **SQL Injection Protection**: Eloquent ORM with parameter binding
-- **XSS Protection**: Laravel's built-in XSS protection
+- API authentication using Laravel Sanctum
+- CORS properly configured
+- Input validation on all endpoints
+- SQL injection protection via Eloquent ORM
+- XSS protection via proper output encoding
 
-## 🚀 Deployment
+## Performance
 
-### Production Setup
-1. Set environment variables for production
-2. Run `npm run build` for frontend
-3. Configure web server (Apache/Nginx)
-4. Set up database and run migrations
-5. Configure SSL certificates
+- Database queries optimized with proper indexing
+- API responses cached where appropriate
+- Frontend assets optimized with Vite
+- Image optimization for product uploads
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-If you encounter any issues or have questions:
-
-1. Check the [SETUP.md](SETUP.md) for troubleshooting
-2. Review the API documentation above
-3. Check the browser console and Laravel logs
-4. Create an issue in the repository
-
----
-
-**Built with ❤️ using Laravel and Vue.js**
+This project is open-sourced software licensed under the [MIT license](LICENSE).

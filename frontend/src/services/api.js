@@ -2,11 +2,12 @@ import axios from 'axios'
 
 // Create an instance of axios with base configuration
 const api = axios.create({
-    baseURL: '/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     },
+    withCredentials: true,
 })
 
 // Interceptor for adding a token to requests
