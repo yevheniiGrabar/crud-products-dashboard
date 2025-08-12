@@ -9,17 +9,24 @@
     <div class="flex justify-between items-center mb-6">
       <div class="flex items-center space-x-4">
         <label for="per-page" class="text-sm font-medium text-gray-700">Show:</label>
-        <select
-          id="per-page"
-          v-model="perPage"
-          @change="onPerPageChange"
-          class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-        >
-          <option value="5">5 per page</option>
-          <option value="10">10 per page</option>
-          <option value="25">25 per page</option>
-          <option value="50">50 per page</option>
-        </select>
+        <div class="relative">
+          <select
+            id="per-page"
+            v-model="perPage"
+            @change="onPerPageChange"
+            class="border border-gray-300 rounded-md px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white"
+          >
+            <option value="5">5 per page</option>
+            <option value="10">10 per page</option>
+            <option value="25">25 per page</option>
+            <option value="50">50 per page</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
       </div>
       
       <button
