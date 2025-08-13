@@ -8,23 +8,35 @@
     <!-- Header with Add button and Per Page selector -->
     <div class="flex justify-between items-center mb-6">
       <div class="flex items-center space-x-4">
-        <label for="per-page" class="text-sm font-medium text-gray-700">Show:</label>
+        <label class="text-sm font-medium text-gray-700">Show:</label>
         <div class="relative">
-          <select
-            id="per-page"
-            v-model="perPage"
-            @change="onPerPageChange"
-            class="border border-gray-300 rounded-md px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white"
+          <button
+            @click="dropdownOpen = !dropdownOpen"
+            @blur="setTimeout(() => dropdownOpen = false, 150)"
+            class="border border-gray-300 rounded-md px-3 py-2 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-left w-full flex items-center justify-between"
           >
-            <option value="5">5 per page</option>
-            <option value="10">10 per page</option>
-            <option value="25">25 per page</option>
-            <option value="50">50 per page</option>
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span>{{ perPage }} per page</span>
+            <svg class="h-4 w-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
+          </button>
+          
+          <!-- Dropdown menu -->
+          <div
+            v-if="dropdownOpen"
+            class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg"
+          >
+            <div class="py-1">
+              <button
+                v-for="option in [5, 10, 25, 50]"
+                :key="option"
+                @click="selectPerPage(option)"
+                class="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100"
+                :class="{ 'bg-indigo-50 text-indigo-700': perPage === option }"
+              >
+                {{ option }} per page
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -231,6 +243,7 @@ const productsStore = useProductsStore()
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const editingProduct = ref(null)
+const dropdownOpen = ref(false)
 
 const loading = computed(() => productsStore.loading)
 const products = computed(() => productsStore.products)
@@ -306,6 +319,12 @@ const onProductSaved = () => {
 const onPerPageChange = async () => {
   productsStore.setPerPage(perPage.value)
   await productsStore.getProducts(1, perPage.value) // Reset to first page when per page changes
+}
+
+const selectPerPage = async (value) => {
+  perPage.value = value
+  dropdownOpen.value = false
+  await onPerPageChange()
 }
 
 // Handle edit parameter from URL
